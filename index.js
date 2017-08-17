@@ -392,25 +392,31 @@ var parseMaterials = function () {
 	for (var collection in assembly.materials) {
 		assembly.materials[collection].items = sortObj(assembly.materials[collection].items, 'order');
 
-    if (options.destMap[collection]) {
-      for (var material in collection) {
-        const filePath = path.join(options.destMap[collection], material, options.extension);
-        const template = Handlebars.compile(Handlebars.partials[material]);
-        // write file
-    		mkdirp.sync(path.dirname(filePath));
-    		try {
-    			fs.writeFileSync(filePath, template(material.data));
-    		} catch(e) {
-    			const originFilePath = path.dirname(file) + '/' + path.basename(file);
-
-    			console.error('\x1b[31m \x1b[1mBold', 'Error while comiling template', originFilePath, '\x1b[0m \n')
-    			throw e;
-    		}
+      if (options.destMap[collection]) {
+        compilePartials(collection);
       }
-    }
-	}
+  }
 
 };
+
+var compilePartials = function (collection) {
+  for (var material in assembly.materials[collection].items) {
+    const context = buildContext(assembly.materials[collection].items[material].data);
+    console.log(context);
+    const filePath = path.join(options.destMap[collection], material + options.extension);
+    const template = Handlebars.compile(Handlebars.partials[material], {noEscape: true});
+    // write file
+		mkdirp.sync(path.dirname(filePath));
+		try {
+			fs.writeFileSync(filePath, template(context));
+		} catch(e) {
+			const originFilePath = collection + '/' + material;
+
+			console.error('\x1b[31m \x1b[1mBold', 'Error while comiling template', originFilePath, '\x1b[0m \n')
+			throw e;
+		}
+  }
+}
 
 
 /**
