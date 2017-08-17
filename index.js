@@ -383,21 +383,6 @@ var parseMaterials = function () {
 		// register the partial
 		Handlebars.registerPartial(id, content);
 
-    if (options.destMap[collection]) {
-      const filePath = path.join(options.destMap[collection], id, options.extension);
-      const template = Handlebars.compile(content);
-      // write file
-  		mkdirp.sync(path.dirname(filePath));
-  		try {
-  			fs.writeFileSync(filePath, template(localData));
-  		} catch(e) {
-  			const originFilePath = path.dirname(file) + '/' + path.basename(file);
-
-  			console.error('\x1b[31m \x1b[1mBold', 'Error while comiling template', originFilePath, '\x1b[0m \n')
-  			throw e;
-  		}
-    }
-
 	});
 
 
@@ -406,6 +391,23 @@ var parseMaterials = function () {
 
 	for (var collection in assembly.materials) {
 		assembly.materials[collection].items = sortObj(assembly.materials[collection].items, 'order');
+
+    if (options.destMap[collection]) {
+      for (var material in collection) {
+        const filePath = path.join(options.destMap[collection], material, options.extension);
+        const template = Handlebars.compile(Handlebars.partials[material]);
+        // write file
+    		mkdirp.sync(path.dirname(filePath));
+    		try {
+    			fs.writeFileSync(filePath, template(material.data));
+    		} catch(e) {
+    			const originFilePath = path.dirname(file) + '/' + path.basename(file);
+
+    			console.error('\x1b[31m \x1b[1mBold', 'Error while comiling template', originFilePath, '\x1b[0m \n')
+    			throw e;
+    		}
+      }
+    }
 	}
 
 };
