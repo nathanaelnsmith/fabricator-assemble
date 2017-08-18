@@ -407,8 +407,7 @@ var parseMaterials = function () {
 
 var compilePartials = function (collection) {
   for (var material in assembly.materials[collection].items) {
-    const context = buildContext(assembly.materials[collection].items[material].data, { env: options.exportPartials[collection].env });
-    console.log(context);
+    const context = buildContext(assembly.materials[collection].items[material].data, options.exportPartials[collection].data);
     const filePath = path.join(options.exportPartials[collection].dest, material + options.exportPartials[collection].extension);
     const template = Handlebars.compile(Handlebars.partials[material], {noEscape: true});
     // write file
