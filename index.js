@@ -95,6 +95,12 @@ var defaults = {
 	 */
   destMap: {},
 
+  /**
+   * Configure partial export
+   * @type {Object}
+   */
+  exportPartials: {},
+
 	/**
 	 * beautifier options
 	 * @type {Object}
@@ -392,7 +398,7 @@ var parseMaterials = function () {
 	for (var collection in assembly.materials) {
 		assembly.materials[collection].items = sortObj(assembly.materials[collection].items, 'order');
 
-      if (options.destMap[collection]) {
+      if (options.exportPartials[collection]) {
         compilePartials(collection);
       }
   }
@@ -401,9 +407,9 @@ var parseMaterials = function () {
 
 var compilePartials = function (collection) {
   for (var material in assembly.materials[collection].items) {
-    const context = buildContext(assembly.materials[collection].items[material].data);
+    const context = buildContext(assembly.materials[collection].items[material].data, { env: options.exportPartials[collection].env });
     console.log(context);
-    const filePath = path.join(options.destMap[collection], material + options.extension);
+    const filePath = path.join(options.exportPartials[collection].dest, material + options.exportPartials[collection].extension);
     const template = Handlebars.compile(Handlebars.partials[material], {noEscape: true});
     // write file
 		mkdirp.sync(path.dirname(filePath));
